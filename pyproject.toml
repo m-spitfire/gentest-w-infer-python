@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "gentest-w-infer-python"
+version = "0.1.0"
+description = "Test Case generation with Type inference for Python"
+authors = ["Murad Bashirov <carlsonmu@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.scripts]
+cs453-py-testgen = "gentest_w_infer_python.cli:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
