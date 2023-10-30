@@ -10,7 +10,7 @@ readme = "README.md"
 python = "^3.12"
 
 [tool.poetry.scripts]
-cs453-py-testgen = "gentest_w_infer_python.cli:main"
+cs454-py-testgen = "gentest_w_infer_python.cli:main"
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,6 +1,6 @@
 import sys
 
-def main(_argv):
+def main(_argv: list[str] | None = None):
     print("hello there")
 
 if __name__ == "__main__":

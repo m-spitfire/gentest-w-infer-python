@@ -10,5 +10,5 @@ A CS454 Team project for Fall 2023.
 
 ```sh
 pip install git+https://github.com/m-spitfire/gentest-w-infer-python.git
-cs453-py-testgen --output-path /tmp/tests --module-name foo # generate test for foo.py in /tmp/tests
+cs454-py-testgen --output-path /tmp/tests --module-name foo # generate test for foo.py in /tmp/tests
 ```
