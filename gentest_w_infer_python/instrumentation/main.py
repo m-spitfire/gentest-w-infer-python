@@ -4,7 +4,6 @@ stmt_list = []
 approach_level = 0
 from visitor import ChangeAndsToNested, ChangeMatchToIf, ChangeOrToElseIfs
 
-
 def parser_of_eqs(stmt):
     '''
     Use match statements to simplify the code
@@ -146,10 +145,14 @@ def execute_file_with_given_arugment(args = [4,5], file = "examples/example1.py"
                 element.body.insert(0, ast.Assign(targets=[ast.Name(id='return_approach_level',
                                                  ctx=ast.Store())], value=ast.Constant(value=0)))
                 element.body.insert(0, ast.Global(names=['return_approach_level']))
+                
 
+                prev_branches = []
                 function_copy = deepcopy(element)
                 for _ in change_all_predicates(function_copy.body):
                     #changing instrumented name to have {name}_i, and appending it to body.
+                    if function_copy in prev_branches:
+                        continue
                     new_name =element.name+ '_' + str(i)
                     function_copy.name = new_name
 
@@ -169,7 +172,7 @@ def execute_file_with_given_arugment(args = [4,5], file = "examples/example1.py"
                 #new executable_file
     instrumented_code = ast.unparse(ast.fix_missing_locations(new_tree))
     with open('debug.py', "w") as f:
-       f.write(instrumented_code)
+        f.write(instrumented_code)
     exec(instrumented_code, globals())
     return [x + y for (x, y) in zip(fitness_vector, approach_level_list)]
 
@@ -177,6 +180,7 @@ def execute_file_with_given_arugment(args = [4,5], file = "examples/example1.py"
 
         
 
-print(execute_file_with_given_arugment(args = [11,"somestring", 5], file = "examples/example1.py" ))
+print(execute_file_with_given_arugment(args = [11,"somestring", 5], file = "examples/example1.py", func_name = "foo"))
+
 
 
