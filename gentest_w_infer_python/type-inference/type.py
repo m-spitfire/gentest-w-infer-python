@@ -281,52 +281,57 @@ def replace_varname(tree, varname, newname):
     return tree
 
 
-
-# for each variable get expression it is involved in
-def getExpressionNodes(varname, tree) -> list:
-    expressions = []
+def getExpressionNodes(varname, tree):
+    expressionNodes = []
     for node in ast.walk(tree):
         if(isinstance(node, ast.Assign)):
-            if(containts_var(node.value, varname)):
-                expressions.append(node)
-            for target in node.targets:
-                if(containts_var(target, varname)):
-                    expressions.append(node)
+            target = node.targets[0]
+            if target.id == varname:
+                expressionNodes.append(node)
+            value = node.value
+            newexpr = getExpressionNodes(varname, value)
+            for expr in newexpr:
+                expressionNodes.append(expr)
+        if(isinstance(node, ast.BinOp)):
+            left = node.left
+            right = node.right
+            if(containts_var(left, varname) or containts_var(right, varname)):
+                expressionNodes.append(node)
+            newexpr = getExpressionNodes(varname, left)
+            for expr in newexpr:
+                expressionNodes.append(expr)
+            newexpr = getExpressionNodes(varname, right)
+            for expr in newexpr:
+                expressionNodes.append(expr)
         if(isinstance(node, ast.Compare)):
-            if(containts_var(node.left, varname)):
-                expressions.append(node)
+            left = node.left
+            newexpr = getExpressionNodes(varname, left)
+            for expr in newexpr:
+                expressionNodes.append(expr)
             for comp in node.comparators:
                 if(containts_var(comp, varname)):
-                    expressions.append(node)
-        if(isinstance(node, ast.BinOp)):
-            if(containts_var(node.left, varname)):
-                expressions.append(node)
-            if(containts_var(node.right, varname)):
-                expressions.append(node)
-        if(isinstance(node, ast.For)):
-            targetname = node.target.id
-            body = (node.body)
-            iterable = node.iter
-            if(isinstance(iterable, ast.Name)):
-                if(iterable.id == varname):
-                    expressions.append(node)
-            if(isinstance(iterable, ast.List)):
-                if(containts_var(iterable, varname)):
-                    bodycopy = copy.deepcopy(body)
-                    for bodynode in bodycopy:
-                        bodynode = replace_varname(bodynode, targetname, varname)
-                    expressions.append(bodycopy)
+                    expressionNodes.append(node)
+                newexpr = getExpressionNodes(varname, comp)
+                for expr in newexpr:
+                    expressionNodes.append(expr)
         if(isinstance(node, ast.Call)):
-            if(isinstance(node.func, ast.Name)):
-                if(node.func.id == varname):
-                    expressions.append(node)
-            if(isinstance(node.func, ast.Attribute)):
-                if(node.func.attr == varname):
-                    expressions.append(node)
-                    
-                    
-            
-    return expressions
+            for arg in node.args:
+                newexpr = getExpressionNodes(varname, arg)
+                for expr in newexpr:
+                    expressionNodes.append(expr)
+        if(isinstance(node, ast.Subscript)):
+            if(containts_var(node.value, varname)):
+                expressionNodes.append(node)
+            newexpr = getExpressionNodes(varname, node.value)
+            for expr in newexpr:
+                expressionNodes.append(expr)
+        if(isinstance(node, ast.For)):
+            if(containts_var(node.iter, varname)):
+                expressionNodes.append(node)
+            newexpr = getExpressionNodes(varname, node.iter)
+            for expr in newexpr:
+                expressionNodes.append(expr)
+    return expressionNodes
 
 
 def expNode2exp(node):
